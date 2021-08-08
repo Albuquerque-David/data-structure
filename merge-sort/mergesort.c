@@ -12,28 +12,41 @@
 #define OVERFLOW_MULTIPLIER 2
 
 void overflow(int **array,int *array_size);
-void merge_sort(int *array, begin, end);
-void merge(int *array, begin, middle, end);
+void merge_sort(int *array, int array_size);
+void merge_sort_rec(int *array,int *aux, int begin, int end);
+void merge(int *array, int *aux, int begin, int middle, int end);
 
-int main(void)
-{
+int main(int argc, char** argv)
+{   
     
     int array_size = TAM;
     int quant = 0;
     int i = 0;
+    int number;
     int *array = (int *)malloc(sizeof(int) * array_size);
+    FILE *fp = argc > 1 ? fopen (argv[1], "r") : stdin;
 
-    while(i < 20){
-        scanf("%d", &array[i]);-
-        quant++;
+    if(fp == NULL){
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    while ( fscanf(fp, "%d", & number ) == 1 )  
+    { 
+        array[i] = number;
         i++;
+        quant++;
         if( quant >= array_size )
             overflow(&array, &array_size);
-    }
+    } 
+
+    merge_sort(array, quant);
 
     for(i = 0 ; i < quant; i++){
         printf("%d\n",array[i]);
     }
+
+    if (fp != stdin) fclose (fp);
 
     return 0;
 
@@ -41,33 +54,47 @@ int main(void)
 
 void overflow(int **array,int *array_size)
 {
-    int i;
-    int *new_array = (int *)malloc(sizeof(int) * (*array_size) * OVERFLOW_MULTIPLIER);
-
-
-    for(i = 0; i < *array_size; i++){
-        new_array[i] = (*array)[i];
-    }
-
+    *array = (int *)realloc(*array, sizeof(int) * (*array_size) * OVERFLOW_MULTIPLIER);
     *array_size *= OVERFLOW_MULTIPLIER;
-    free(*array);
-    *array = new_array;
 }
 
-void merge_sort(int *array, begin, end)
+void merge_sort(int *array, int array_size)
 {
+    int *aux = (int *)malloc(sizeof(int) * array_size);
+    merge_sort_rec(array, aux, 0, array_size-1);
+}
+
+void merge_sort_rec(int *array,int *aux, int begin, int end)
+{
+    int middle = begin + (end - begin) / 2;
+
     if (begin >= end)
         return;
 
-    int middle = begin + (end - begin) / 2;
-    merge_sort(array, begin, middle);
-    merge_sort(array, middle + 1, end);
-    merge(array, begin, middle, end);
+    merge_sort_rec(array, aux, begin, middle);
+    merge_sort_rec(array, aux, middle + 1, end);
+    merge(array, aux, begin, middle, end);
 }
 
-void merge(int *array, begin, middle, end)
+void merge(int *array, int *aux, int begin, int middle, int end)
 {
 
-    int left, right, k;
+    int left, right, i;
 
+   for(left = begin, right = middle + 1, i = begin; left <= middle && right <= end; i++) {
+      if(array[left] <= array[right])
+         aux[i] = array[left++];
+      else
+         aux[i] = array[right++];
+   }
+   
+   while(left <= middle)    
+      aux[i++] = array[left++];
+
+   while(right <= end)   
+      aux[i++] = array[right++];
+
+   for(i = begin; i <= end; i++)
+      array[i] = aux[i];
+    
 }
