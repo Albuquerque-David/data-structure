@@ -24,14 +24,8 @@ int main(int argc, char** argv)
     int i = 0;
     int number;
     int *array = (int *)malloc(sizeof(int) * array_size);
-    FILE *fp = argc > 1 ? fopen (argv[1], "r") : stdin;
 
-    if(fp == NULL){
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    while ( fscanf(fp, "%d", & number ) == 1 )  
+    while(scanf("%d",&number) == 1)
     { 
         array[i] = number;
         i++;
@@ -45,8 +39,6 @@ int main(int argc, char** argv)
     for(i = 0 ; i < quant; i++){
         printf("%d\n",array[i]);
     }
-
-    if (fp != stdin) fclose (fp);
 
     return 0;
 
