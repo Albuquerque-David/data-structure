@@ -19,60 +19,86 @@ typedef struct Adjacency{
 int main(int argc, char** argv)
 {   
 
-    char *linha = NULL;
-    size_t tamLinha;
-    int vertices, arestas;
-    int i;
+    char *line = NULL;
+    size_t size_line;
+    int vertex, edges;
+    int i,j;
     int pos;
-    int numLido;
-    int numChars;
+    int num_read;
+    int num_chars;
+    int *indegree;
+    int *order;
+    int order_pos;
     Adjacency *adj;
     Adjacency *aux;
 
-    tamLinha = 0;
+    order_pos = 0;
+    size_line = 0;
 
-    scanf("%d %d\n", &vertices, &arestas);
+    scanf("%d %d\n", &vertex, &edges);
 
-    adj = (Adjacency *)malloc(sizeof(Adjacency) * vertices);
+    adj = (Adjacency *)malloc(sizeof(Adjacency) * vertex);
+    indegree = (int *)malloc(sizeof(int) * vertex);
+    order = (int *)malloc(sizeof(int) * vertex);
 
-    printf("Li vertices = %d e arestas = %d\n",vertices,arestas);
-    for(i = 0; i < vertices; i++){
+    for(i = 0; i < vertex; i++){
 
         aux = &adj[i];
 
-        getline(&linha,&tamLinha,stdin);
+        getline(&line,&size_line,stdin);
         pos = 0;
-        numLido = 0;
+        num_read = 0;
         
-        while (sscanf(&linha[pos], " %d %n", &numLido, &numChars) > 0) {
+        while (sscanf(&line[pos], " %d %n", &num_read, &num_chars) > 0) {
             if(pos != 0){
                 aux->right = (Adjacency *)malloc(sizeof(Adjacency));
                 aux = aux->right;
             }
 
-            pos += numChars; 
+            pos += num_chars; 
 
-            aux->data = numLido;
+            aux->data = num_read;
             aux->right = NULL;
 
-            if(strlen(linha) != 0){
-                printf(" insere em adj [ %d ] o vertice %d\n",i+1, numLido);      
-            }
+
         }
     }
 
-
-    for(i = 0; i < vertices; i++){
+    for(i = 0; i < vertex; i++){
 
         aux = &adj[i];
-        printf("Vertice %d", i+1);
         while(aux != NULL){
-            printf("->%d",aux->data);
+            indegree[(aux->data)-1]++;
             aux = aux->right;
         }
+    }
 
-        printf("\n");
+    for(i = 0; i < vertex; i++){
 
+        if(indegree[i] == 0){
+            order[order_pos] = i+1;
+            order_pos++;
+        }
+
+    }
+
+    for(i = 0; i < vertex; i++){
+
+        j = order[i] - 1;
+        aux = &adj[j];
+
+        while(aux != NULL){
+            indegree[(aux->data)-1]--;
+            if(indegree[(aux->data)-1] == 0){
+                order[order_pos] = (aux->data);
+                order_pos++;
+            }
+            aux = aux->right;
+        }
+    }
+
+    for(i = 0; i < vertex; i++){
+        printf("%d ", order[i]);
     }
 
     return 0;
