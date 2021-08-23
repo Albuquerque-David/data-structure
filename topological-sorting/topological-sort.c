@@ -31,6 +31,7 @@ int main(int argc, char** argv)
     int order_pos;
     Adjacency *adj;
     Adjacency *aux;
+    Adjacency *aux_free;
 
     order_pos = 0;
     size_line = 0;
@@ -100,6 +101,21 @@ int main(int argc, char** argv)
     for(i = 0; i < vertex; i++){
         printf("%d ", order[i]);
     }
+
+    for(i = 0; i < vertex; i++){
+
+        aux = &adj[i];
+        aux = aux->right;
+        while(aux != NULL){
+            aux_free = aux;
+            aux = aux->right;
+            free(aux_free);
+        }
+    }
+
+    free(indegree);
+    free(order);
+    free(adj);
 
     return 0;
 
