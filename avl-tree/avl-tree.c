@@ -24,17 +24,19 @@ int main() {
     char str[100];
 
     while(!feof(stdin)) {
-        scanf("%s",str);
-        if(str[0] == 'p') {
-            printTree(root);
-            printf("\n");
-        }
-
-        if(str[0] == 'i') {
-            if(scanf("%d",&value) == 1) {
-                root = insert(value,root);
+        if(scanf("%s",str) == 1) {
+            if(str[0] == 'p') {
+                printTree(root);
+                printf("\n");
             }
-            
+
+            if(str[0] == 'i') {
+
+                if(scanf("%d",&value) == 1) {
+                    root = insert(value,root);
+                }
+    
+            }
         }
     }
 
