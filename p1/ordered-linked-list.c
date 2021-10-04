@@ -37,6 +37,9 @@ Node* insert_ordered_node(Node *list, int new_node_value) {
 
     Node *aux, *ant;
 
+    /**
+    * lista vazia
+    **/
     if(list == NULL) {
         list = (Node *)malloc(sizeof(Node));
         list->value = new_node_value;
@@ -47,9 +50,7 @@ Node* insert_ordered_node(Node *list, int new_node_value) {
     aux = list;
 
     /**
-    *
-    * Beginning of list
-    *
+    * Valor deve ser inserido no começo da lista
     **/
     if(new_node_value < list->value) {
         list = (Node *)malloc(sizeof(Node));
@@ -64,9 +65,7 @@ Node* insert_ordered_node(Node *list, int new_node_value) {
     }
 
     /**
-    *
-    * End of list
-    *
+    * Valor deve ser inserido no final da lista
     **/
     if(new_node_value > aux->value) {
         aux->next = (Node *)malloc(sizeof(Node));
@@ -77,9 +76,7 @@ Node* insert_ordered_node(Node *list, int new_node_value) {
     }
 
     /**
-    *
-    * Middle of list
-    *
+    * Valor deve ser inserido no meio da lista
     **/
     ant->next=(Node *)malloc(sizeof(Node));
     ant=ant->next;
