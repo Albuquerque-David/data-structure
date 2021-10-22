@@ -1,0 +1,14 @@
+1ª linha - numero de casos de teste T
+2ª linha - número cidades | distância que considera se tá no mesmo estado ou não
+3ª para cada T escolha de número de cidades x threshold, vai ter n (cidades) linhas de casos com as coordenadas.
+
+INPUT
+The first line of input gives the number of cases, T (1 ≤ T ≤ 20). T test cases follow. On the first line of each
+test case, there will be two integers, n (1 ≤ n ≤ 1000), the number of cities that comprise Graphland, 
+and r (0 ≤ r ≤ 40000), the threshold value to determine if two cities are in the same state. On the following n lines, 
+there will be a list of x-y (-10000 ≤ x, y ≤ 10000) integer coordinates in the plan for each city in Graphland.
+OUTPUT
+The output is comprised of one line for each input data set. The line identifies the data set with a number
+(starting from one and incrementing at each new data set), followed by the number of states in Graphland and 
+the minimum extension (rounded to the nearest integer) of both roads and railroads that must be built to satisfy 
+the conditions of the project.
