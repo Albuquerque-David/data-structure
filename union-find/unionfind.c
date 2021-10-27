@@ -1,9 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<math.h>
 
 #define  T_SIZE 20
+#define MAX_NODES_SIZE 1000
+#define MAX_EDGES_SIZE 499500
 
 typedef struct Edge {
     int src, dest, weight;
@@ -24,88 +26,90 @@ void Union(Subset subsets[], int x, int y);
 int Find(Subset subsets[], int i);
 int myComp(void* a, void* b);
 int calcDistance(int x1, int x2, int y1, int y2);
-void KruskalMST(Graph* graph);
+int KruskalMST(Graph* graph, int calc_states);
+int Calc_Cities(Graph* graph);
+int Calc_States(Graph* graph);
+
+Graph* graph;
+
+Graph* graph_cities;
+Graph* graph_states;
+
+int graph_cities_count;
+int graph_states_count;
+int graph_only_states_count;
+int r, data_set;
 
 int main()
 {
 
-    /*int t, t_array[T_SIZE];
-    int n, r;
-    int x, y;
-    int i;
-    int a, b, c*/
+    int t, x_coord[T_SIZE], y_coord[T_SIZE];
+    int n;
+    int i, j, k;
     int V; 
     int E;
-    Graph* graph;
+    int distance;
+    int minimum_cost_cities[T_SIZE];
+    int minimum_cost_states[T_SIZE];
+    int data_sets_count[MAX_NODES_SIZE];
 
-    V = 4;
-    E = 5;
-    
-    graph = createGraph(V, E);
+    V = MAX_NODES_SIZE;
+    E = MAX_EDGES_SIZE;
 
-    /*graph->edge[0].src = 0;
-    graph->edge[0].dest = 1;
-    graph->edge[0].weight = 1;
- 
-    graph->edge[1].src = 0;
-    graph->edge[1].dest = 2;
-    graph->edge[1].weight = 2;
- 
-    graph->edge[2].src = 1;
-    graph->edge[2].dest = 2;
-    graph->edge[2].weight = 1;*/
+    t = 0;
 
-    /*
-    graph->edge[0].src = 0;
-    graph->edge[0].dest = 1;
-    graph->edge[0].weight = 100;
- 
-    graph->edge[1].src = 0;
-    graph->edge[1].dest = 2;
-    graph->edge[1].weight = 200;
- 
-    graph->edge[2].src = 1;
-    graph->edge[2].dest = 2;
-    graph->edge[2].weight = 100;*/
-
-    
-    graph->edge[0].src = 0;
-    graph->edge[0].dest = 1;
-    graph->edge[0].weight = 14;
- 
-    graph->edge[1].src = 2;
-    graph->edge[1].dest = 3;
-    graph->edge[1].weight = 10;
- 
-    graph->edge[2].src = 1;
-    graph->edge[2].dest = 2;
-    graph->edge[2].weight = 100;
-
-    /*
-    graph->edge[0].src = 0;
-    graph->edge[0].dest = 1;
-    graph->edge[0].weight = 100;
- 
-    graph->edge[1].src = 0;
-    graph->edge[1].dest = 2;
-    graph->edge[1].weight = 200;
- 
-    graph->edge[2].src = 1;
-    graph->edge[2].dest = 2;
-    graph->edge[2].weight = 100;*/
-
- 
-    KruskalMST(graph);
-
-    /*scanf("%d", &t);
+    scanf("%d", &t);
 
     for(i = 0; i < t; i++) {
+          
+        graph = createGraph(V, E);
+
+        graph_cities = createGraph(V,E);
+        graph_states = createGraph(V,E);
+
+        graph_cities_count = 0;
+        graph_states_count = 0;
+        graph_only_states_count = 0;
+
+        data_set = 1;
+
         scanf("%d %d", &n, &r);
+
+        for(j = 0; j < n; j++) {
+            scanf("%d %d", &x_coord[j], &y_coord[j]);
+        }
+
+        for(j = 0; j < n; j++) {
+            for(k = 0; k < n; k++) {
+                if(j == k)
+                    continue;
+                distance = calcDistance(x_coord[j], x_coord[k], y_coord[j], y_coord[k]);
+
+                if(distance <= r) {
+                    graph_cities->edge[graph_cities_count].src = j;
+                    graph_cities->edge[graph_cities_count].dest = k;
+                    graph_cities->edge[graph_cities_count].weight = distance;            
+                    graph_cities_count++;
+                } else {
+                    graph_states->edge[graph_states_count].src = j;
+                    graph_states->edge[graph_states_count].dest = k;
+                    graph_states->edge[graph_states_count].weight = distance;            
+                    graph_states_count++;
+                }
+            }
+        }
+
+        graph_only_states_count = graph_states_count;
+
+        minimum_cost_cities[i] = Calc_Cities(graph_cities);
+        minimum_cost_states[i] = Calc_States(graph_states);
+        data_sets_count[i] = data_set;
+
     }
 
     for(i = 0; i < t; i++) {
-        printf("Case #%d: %d %d %d\n", a, b, c);
-    }*/
+        printf("Case #%d: %d %d %d\n",i+1, data_sets_count[i], minimum_cost_cities[i], minimum_cost_states[i]);
+    }
 
     return 0;
 }
@@ -151,15 +155,14 @@ void Union(Subset subsets[], int x, int y)
     }
 }
  
-int myComp(void* a, void* b)
+int comparator(const void* a, const void* b)
 {
     Edge* a1 = (Edge*)a;
     Edge* b1 = (Edge*)b;
     return a1->weight > b1->weight;
 }
 
-void KruskalMST(Graph* graph)
-{
+int KruskalMST(Graph* graph, int calc_states){
     int V = graph->V;
     Edge result[V];
     int e = 0; 
@@ -167,7 +170,7 @@ void KruskalMST(Graph* graph)
     int minimumCost = 0;
     int v;
 
-    qsort(graph->edge, graph->E, sizeof(graph->edge[0]),myComp);
+    qsort(graph->edge, graph->E, sizeof(graph->edge[0]),comparator);
  
     Subset* subsets = (Subset*)malloc(V * sizeof(Subset));
  
@@ -189,20 +192,43 @@ void KruskalMST(Graph* graph)
         }
         
     }
-
-    printf(
-        "Following are the edges in the constructed MST\n");
     
     for (i = 0; i < e; ++i)
     {
-        printf("%d -- %d == %d\n", result[i].src,
-            result[i].dest, result[i].weight);
+        if( calc_states == 0 ){
+            graph_states->edge[graph_states_count].src = result[i].src;
+            graph_states->edge[graph_states_count].dest = result[i].dest;
+            graph_states->edge[graph_states_count].weight = result[i].weight;         
+            graph_states_count++;
+        }
+        
         minimumCost += result[i].weight;
     }
-    printf("Minimum Cost Spanning tree : %d\n\n",minimumCost);
-    return;
+
+    if( calc_states == 1 ) {
+        for (i = 0; i < graph_states_count; i++) {
+            if( result[i].weight < r ) {
+                minimumCost -= result[i].weight;
+            } else {
+                data_set++;
+            }            
+        }
+    }
+    return minimumCost;
+}
+
+int Calc_Cities(Graph* graph)
+{
+    return KruskalMST(graph, 0);
+}
+
+int Calc_States(Graph* graph)
+{
+    return KruskalMST(graph, 1);
 }
 
 int calcDistance(int x1, int x2, int y1, int y2) {
-    return round(sqrt( (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) ));
+    int distance;
+    distance = round(sqrt( (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) ));
+    return distance;
 }
